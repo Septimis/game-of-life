@@ -25,6 +25,8 @@ There are, of course, as many variations to these rules as there are different c
 ## Build Instructions
 Simply save the `.jar` file onto your computer and execute it.
 
+You can also run `javac GameOfLife.java` followed by `java GameOfLife [optional_args_here]`.
+
 ## Command Line Arguments
 This program accepts **two** forms of command line arguments.
 
