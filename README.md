@@ -23,7 +23,7 @@ There are, of course, as many variations to these rules as there are different c
 (Description found at https://pi.math.cornell.edu/~lipa/mec/lesson6.html)
 
 ## Build Instructions
-You will need to compile the .java file by running `javac GameOfLife.java` in your terminal/console of choice.  Be sure to have the current Java JDK installed.  
+Simply save the `.jar` file onto your computer and execute it.
 
 ## Command Line Arguments
 This program accepts **two** forms of command line arguments.
