@@ -392,6 +392,8 @@ public class GameOfLife {
                 case "p":
                     System.out.printf("Playing through %d intervals at a rate of 1 generation per %4.2f second(s)...\n\n", numIntervals, timeInterval);
                     //countdown timer to begin
+                    float numSeconds = timeInterval * 1000;
+                    
                     for(int i = 5; i > 0; i--) {
                         try{
                             System.out.print("Starting in " + i + "\r");
@@ -413,7 +415,7 @@ public class GameOfLife {
 
                         //wait the allotted amount of time to print a new generation
                         try {
-                            Thread.sleep((long)timeInterval * 1000);
+                            Thread.sleep((long)numSeconds);
 
                             //clear the board
                             String currentOS = System.getProperty("os.name");
