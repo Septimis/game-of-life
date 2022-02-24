@@ -1,7 +1,6 @@
-import java.util.ArrayList;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ProcessBuilder;
 
 public class GameOfLife {
     //smart error printing
@@ -87,45 +86,104 @@ public class GameOfLife {
     }
     
     //print the board in a formatted way (I realized that I could have used printf() functionality instead of all of this printing logic)
-    public static void printBoard(Boolean[][] a_board) {
+    public static void printBoard(Boolean[][] a_board, Boolean a_isEditing) {
+        //build a single string that represents our board.
         int heightSpaceNum = Integer.toString(a_board.length).length();
         int widthSpaceNum = Integer.toString(a_board[0].length).length();
+        String board = "";
+        if(a_isEditing) board = board + "\n   ";
+        else board = board + "\r";
 
-        //print the column headers
-        System.out.print("\n   ");
-        for(int i = 0; i < heightSpaceNum; i++) System.out.print(" ");
-        for(int i = 0; i < a_board[0].length; i++) {
-            System.out.printf("%d ", i); //column numbers
-            for(int j = 0; j < widthSpaceNum - Integer.toString(i).length(); j++) System.out.print(" ");
-         } 
-        System.out.print("\n  ");
-        for(int i = 0; i < heightSpaceNum; i++) System.out.print(" "); //space left of dashes
-        for(int i = 0; i < a_board[0].length; i++) {
-            System.out.print("-"); //default dashes
-            for(int j = 0; j < widthSpaceNum; j++) System.out.print("-"); //an extra dash for extra numbers
+        //only include the column headers and dashes if the user is editing the board
+        if(a_isEditing) {
+            //include the column headers
+            for(int i = 0; i < heightSpaceNum; i++) board = board + " ";
+            for(int i = 0; i < a_board[0].length; i++) {
+                board = board + i + " "; //add column numbers
+                for(int j = 0; j < widthSpaceNum - Integer.toString(i).length(); j++) board = board + " ";
+            }
+
+            //include a row of dashes to separate everything
+            board = board + "\n  ";
+            for(int i = 0; i < heightSpaceNum; i++) board = board + " "; //space left of dashes
+            for(int i = 0; i < a_board[0].length; i++) {
+                board = board + "-"; //default dashes
+                for(int j = 0; j < widthSpaceNum; j++) board = board + "-"; //an extra dash for extra numbers
+            }
+            board = board + "\n";
         }
-        System.out.println();
+        
 
         //print the actual board
         for(int i = 0; i < a_board.length; i++) {
-            //print the row headers
-            for(int j = 0; j < heightSpaceNum - Integer.toString(i).length(); j++) System.out.print(" ");
-            System.out.print(i);
-            System.out.print(" | ");
+            //only print row headers if the user is editing the board
+            if(a_isEditing) {
+                //print row headers
+                for(int j = 0; j < heightSpaceNum - Integer.toString(i).length(); j++) board = board + " ";
+                board = board + i + " | ";
+            }
+            
 
             //print the row
             for(int j = 0; j < a_board[i].length; j++) {
-                if(a_board[i][j]) {
-                    System.out.print("o");
-                    for(int k = 0; k < widthSpaceNum; k++) System.out.print(" ");                    
-                } else {
-                    System.out.print(" ");
-                    for(int k = 0; k < widthSpaceNum; k++) System.out.print(" ");
-                }
+                if(a_board[i][j]) board = board + "o"; //symbol of an alive cell
+                else board = board + " "; //dead cells stay as blanks
+
+                for(int k = 0; k < widthSpaceNum; k++) board = board + " ";
             }
-            System.out.println();
+            board = board + "\n";
         }
-        System.out.println();
+        board = board + "\n";
+        
+        //print the board on a new line if the user is editing the board, otherwise each print will replace the last.
+        System.out.println(board);
+    }
+    
+    public static Boolean[][] nextGen(Boolean[][] a_board) {
+        Boolean[][] board = new Boolean[a_board.length][a_board[0].length];
+
+        /*alter the board according to these 3 rules
+         *
+         * For a space that is populated:
+         * 1) Each cell with one or no neighbors dies, as if by solitude.
+         * 2) Each cell with four or more neighbors dies, as if by overpopulation.
+         * 3) Each cell with two or three neighbors survives.
+         * 
+         * For a space that is empty/unpopulated:
+         * 1) Each cell with 3 neighbors becomes populated
+         */
+
+         for(int i = 0; i < board.length; i++) { //loop over columns
+             for(int j = 0; j < board[i].length; j++) { //loop over rows
+                int numNeighbors = 0;
+                 //check how many living neighbors this particular cell has
+                for(int m = i - 1; m <= i + 1; m++) { // check columns
+                    for(int n = j - 1; n <= j + 1; n++) { //check rows
+                        if (m >= 0 && n >= 0 && m < board.length && n < board[i].length && !(m == i && n == j)) { //don't go out of bounds
+                            if(a_board[m][n]) numNeighbors++; //test for a living neighbor
+                        }
+                    }
+                }
+                 if(a_board[i][j]) { //for a space that is populated
+                    
+                    switch(numNeighbors) {
+                        //if the cell has two or three neighbors it survives
+                        case 2:
+                        case 3:
+                            board[i][j] = a_board[i][j];
+                            break;
+                        //all other scenarios end with the cell dying
+                        default:
+                            board[i][j] = !a_board[i][j];
+                            break;
+                    }
+                 } else { //for a space that is empty/unpopulated
+                    if(numNeighbors == 3) board[i][j] = !a_board[i][j];
+                    else board[i][j] = a_board[i][j];
+                 }
+             }
+         }
+        return board;
     }
     public static void main(String[] args) {
         //declare local variables
@@ -187,7 +245,7 @@ public class GameOfLife {
         int yCoord = -1;
         while(stillEditing) {
             //print the board
-            printBoard(board);
+            printBoard(board, true);
             
             //prompt for change
             
@@ -281,12 +339,43 @@ public class GameOfLife {
                     } while(!correctInput);
                     break;
                 case "p":
-                    System.out.printf("Playing through %d intervals at a rate of 1 generation per %4.2f second(s)...\n", numIntervals, timeInterval);
+                    System.out.printf("Playing through %d intervals at a rate of 1 generation per %4.2f second(s)...\n\n", numIntervals, timeInterval);
+                    //countdown timer to begin
+                    for(int i = 0; i < 5; i++) {
+                        try{
+                            System.out.print(" " + i + "\r");
+                            Thread.sleep(1000);
+                        } catch(Exception e) {
+                            printError("Unknown error occurred while counting down...");
+                            System.exit(0);
+                        }
+                    }
 
                     for(int i = 0; i < numIntervals; i++) {
-                        
+                        //print the board
+                        printBoard(board, false);
 
-                        
+                        //alter the board according to the rules
+                        board = nextGen(board);
+
+                        //wait the allotted amount of time to print a new generation
+                        try {
+                            Thread.sleep((long)timeInterval * 1000);
+
+                            //clear the board
+                            String currentOS = System.getProperty("os.name");
+                            if(currentOS.contains("Windows")) { //clear on Windows OS
+                                ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "cls");
+                                Process startProcess = pb.inheritIO().start();
+                                startProcess.waitFor();
+                            } else { //clear on any other OS
+                                ProcessBuilder pb = new ProcessBuilder("clear");
+                                Process startProcess = pb.inheritIO().start();
+                                startProcess.waitFor();
+                            }
+                        } catch(Exception e) {
+                            printError("There was an error in waiting " + timeInterval + " seconds...");
+                        }
                     }
                     break;
             }
