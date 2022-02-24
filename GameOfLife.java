@@ -9,14 +9,22 @@ import java.lang.ProcessBuilder;
 
 public class GameOfLife {
     //read in the board
-    public static Boolean[][] nextGen(String a_fileName) {
+    public static Boolean[][] readBoard(String a_fileName) {
         ArrayList<ArrayList<Boolean>> board = new ArrayList<>();
+        
         try {
             Scanner scanner = new Scanner(new File(a_fileName));
-
+            int rowLength = scanner.nextLine().replaceAll("\\s", "").length();
             while(scanner.hasNextLine()) {
                 ArrayList<Boolean> row = new ArrayList<>();
                 String currLine = scanner.nextLine().replaceAll("\\s", ""); //grab current line and remove whitespace
+
+                //we can't have uneven rows
+                if(rowLength != currLine.length()) {
+                    printError("The file passed in has uneven rows... Make sure all rows have the same number of characters excluding whitespace");
+                    System.exit(0);
+                }
+                rowLength = currLine.length();
 
                 for(int i = 0; i < currLine.toCharArray().length; i++) {
                     if(currLine.toCharArray()[i] == 'o') row.add(true);
@@ -226,13 +234,15 @@ public class GameOfLife {
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(System.in));
         Boolean correctInput = true;
-        Boolean[][] board;
+        Boolean[][] board = new Boolean[1][1];
 
         //get the width & height of the board
         int boardWidth = -1;
         int boardHeight = -1;
         if(args.length == 1) { //read the board in through through a file.  File name should be passed in throughe the command line
-            
+            board = readBoard(args[0]);
+            boardWidth = board[0].length;
+            boardHeight = board.length;
         } else if(args.length == 2) { //get the width and height through the command line
             try {
                 boardWidth = Integer.parseInt(args[0]);
@@ -275,45 +285,48 @@ public class GameOfLife {
         }
         
         //build & initialize the board
-        board = new Boolean[boardHeight][boardWidth];
-        for(int i = 0; i < board.length; i++) for(int j = 0; j < board[i].length; j++) board[i][j] = false;
+        if(args.length != 1) {
+            board = new Boolean[boardHeight][boardWidth];
+            for(int i = 0; i < board.length; i++) for(int j = 0; j < board[i].length; j++) board[i][j] = false;
 
-        //start editing
-        Boolean stillEditing = true;
-        int xCoord = -1;
-        int yCoord = -1;
-        while(stillEditing) {
-            //print the board
-            printBoard(board, true);
-            
-            //prompt for change
-            System.out.println("Specify the coordinates of the cell you want to toggle by entering the x coordinate, and then the y coordinate");
-            System.out.println("Or type 'f' to finish editing the board...");
-            do {
-                System.out.print("x: ");
-                try {
-                    String xCoord_str = reader.readLine();
-                    if(xCoord_str.toLowerCase().equals("f")) stillEditing = false;
-                    else {
-                        xCoord = Integer.parseInt(xCoord_str);
-
-                        System.out.print("y: ");
-                        String yCoord_str = reader.readLine();
-                        if(yCoord_str.toLowerCase().equals("f")) stillEditing = false;
+            //start editing
+            Boolean stillEditing = true;
+            int xCoord = -1;
+            int yCoord = -1;
+            while(stillEditing) {
+                //print the board
+                printBoard(board, true);
+                
+                //prompt for change
+                System.out.println("Specify the coordinates of the cell you want to toggle by entering the x coordinate, and then the y coordinate");
+                System.out.println("Or type 'f' to finish editing the board...");
+                do {
+                    System.out.print("x: ");
+                    try {
+                        String xCoord_str = reader.readLine();
+                        if(xCoord_str.toLowerCase().equals("f")) stillEditing = false;
                         else {
-                            yCoord = Integer.parseInt(yCoord_str);
-                            correctInput = true;
+                            xCoord = Integer.parseInt(xCoord_str);
 
-                            //toggle the corresponding cell
-                            board[yCoord][xCoord] = !board[yCoord][xCoord];
+                            System.out.print("y: ");
+                            String yCoord_str = reader.readLine();
+                            if(yCoord_str.toLowerCase().equals("f")) stillEditing = false;
+                            else {
+                                yCoord = Integer.parseInt(yCoord_str);
+                                correctInput = true;
+
+                                //toggle the corresponding cell
+                                board[yCoord][xCoord] = !board[yCoord][xCoord];
+                            }
                         }
+                    } catch(Exception e) {
+                        correctInput = false;
+                        printError("An exception has occured.  Please enter just the specified coordinate as a positive integer...");
                     }
-                } catch(Exception e) {
-                    correctInput = false;
-                    printError("An exception has occured.  Please enter just the specified coordinate as a positive integer...");
-                }
-            } while(!correctInput);
+                } while(!correctInput);
+            }
         }
+        
         //now display the menu of what to do with the board
         float timeInterval = 1;
         int numIntervals = 100;
@@ -393,6 +406,7 @@ public class GameOfLife {
                     for(int i = 0; i < numIntervals; i++) {
                         //print the board
                         printBoard(board, false);
+                        System.out.printf("\n\nIteration %d / %d\n",i, numIntervals);
 
                         //alter the board according to the rules
                         board = nextGen(board);
