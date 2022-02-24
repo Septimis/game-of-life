@@ -1,4 +1,5 @@
 # John Conway's Game of Life
+## Introduction
 The Game of Life (an example of a cellular automaton) is played on an infinite two-dimensional rectangular grid of cells. Each cell can be either alive or dead. The status of each cell changes each turn of the game (also called a generation) depending on the statuses of that cell's 8 neighbors. Neighbors of a cell are cells that touch that cell, either horizontal, vertical, or diagonal from that cell.
 
 The initial pattern is the first generation. The second generation evolves from applying the rules simultaneously to every cell on the game board, i.e. births and deaths happen simultaneously. Afterwards, the rules are iteratively applied to create future generations. For each generation of the game, a cell's status in the next generation is determined by a set of rules. These simple rules are as follows:
@@ -20,3 +21,15 @@ There are, of course, as many variations to these rules as there are different c
        2)  Settling into a stable configuration that remains unchanged thereafter, or entering an oscillating phase in which they repeat an endless cycle of two or more periods.
 
 (Description found at https://pi.math.cornell.edu/~lipa/mec/lesson6.html)
+
+## Build Instructions
+You will need to compile the .java file by running `javac GameOfLife.java` in your terminal/console of choice.  Be sure to have the current Java JDK installed.  
+
+## Command Line Arguments
+This program accepts **two** forms of command line arguments.
+
+    1) java GameOfLife [Your_File_Name_Here.txt]
+In the first form, you can pass in a file name in which your initial state is typed out.  **NOTE**: each line in this file is a row.  An 'o' should indicate an alive cell and any other character other than a space will represent a dead cell.  Note that **all whitespace will be removed** before reading the input.
+
+    2) java GameOfLife x y
+These command line arguments indicate the dimensions of the board you would like to create with the first argument, `x`, indicating the width of the board and the second argument, `y`, indicating the height of the board.

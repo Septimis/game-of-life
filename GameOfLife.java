@@ -1,8 +1,44 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Scanner;
+import java.util.ArrayList;
 import java.lang.ProcessBuilder;
 
+
 public class GameOfLife {
+    //read in the board
+    public static Boolean[][] nextGen(String a_fileName) {
+        ArrayList<ArrayList<Boolean>> board = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(new File(a_fileName));
+
+            while(scanner.hasNextLine()) {
+                ArrayList<Boolean> row = new ArrayList<>();
+                String currLine = scanner.nextLine().replaceAll("\\s", ""); //grab current line and remove whitespace
+
+                for(int i = 0; i < currLine.toCharArray().length; i++) {
+                    if(currLine.toCharArray()[i] == 'o') row.add(true);
+                    else row.add(false);
+                }
+                board.add(row);
+            }
+        } catch(FileNotFoundException e) {
+            printError("File " + a_fileName + " was not found : " + e.toString() + "\n\nGoodbye...");
+
+        }
+
+        //populate an array of booleans and return it
+        Boolean[][] returnBoard = new Boolean[board.size()][board.get(0).size()];
+        for(int i = 0; i < board.size(); i++) {
+            for(int j = 0; j < board.get(i).size(); j++) {
+                returnBoard[i][j] = board.get(i).get(j);
+            }
+        }
+        return returnBoard;
+    }
+
     //smart error printing
     public static void printError(String a_errorTxt) {
         //check how wide the error box should be
@@ -190,11 +226,14 @@ public class GameOfLife {
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(System.in));
         Boolean correctInput = true;
+        Boolean[][] board;
 
         //get the width & height of the board
         int boardWidth = -1;
         int boardHeight = -1;
-        if(args.length == 2) { //get the width and height through the command line
+        if(args.length == 1) { //read the board in through through a file.  File name should be passed in throughe the command line
+            
+        } else if(args.length == 2) { //get the width and height through the command line
             try {
                 boardWidth = Integer.parseInt(args[0]);
                 boardHeight = Integer.parseInt(args[1]);
@@ -236,7 +275,7 @@ public class GameOfLife {
         }
         
         //build & initialize the board
-        Boolean[][] board = new Boolean[boardHeight][boardWidth];
+        board = new Boolean[boardHeight][boardWidth];
         for(int i = 0; i < board.length; i++) for(int j = 0; j < board[i].length; j++) board[i][j] = false;
 
         //start editing
@@ -248,9 +287,8 @@ public class GameOfLife {
             printBoard(board, true);
             
             //prompt for change
-            
-                System.out.println("Specify the coordinates of the cell you want to toggle by entering the x coordinate, and then the y coordinate");
-                System.out.println("Or type 'f' to finish editing the board...");
+            System.out.println("Specify the coordinates of the cell you want to toggle by entering the x coordinate, and then the y coordinate");
+            System.out.println("Or type 'f' to finish editing the board...");
             do {
                 System.out.print("x: ");
                 try {
@@ -341,15 +379,16 @@ public class GameOfLife {
                 case "p":
                     System.out.printf("Playing through %d intervals at a rate of 1 generation per %4.2f second(s)...\n\n", numIntervals, timeInterval);
                     //countdown timer to begin
-                    for(int i = 0; i < 5; i++) {
+                    for(int i = 5; i > 0; i--) {
                         try{
-                            System.out.print(" " + i + "\r");
+                            System.out.print("Starting in " + i + "\r");
                             Thread.sleep(1000);
                         } catch(Exception e) {
                             printError("Unknown error occurred while counting down...");
                             System.exit(0);
                         }
                     }
+                    System.out.println("\n");
 
                     for(int i = 0; i < numIntervals; i++) {
                         //print the board
