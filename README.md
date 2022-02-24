@@ -33,3 +33,6 @@ In the first form, you can pass in a file name in which your initial state is ty
 
     2) java GameOfLife x y
 These command line arguments indicate the dimensions of the board you would like to create with the first argument, `x`, indicating the width of the board and the second argument, `y`, indicating the height of the board.
+
+## Other
+Be sure to make the board large enough so that whatever patterns appear may have room to expand!
