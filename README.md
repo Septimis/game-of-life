@@ -38,3 +38,5 @@ These command line arguments indicate the dimensions of the board you would like
 
 ## Other
 Be sure to make the board large enough so that whatever patterns appear may have room to expand!
+
+Built by Connor Meads as a fun personal project.
